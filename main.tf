@@ -238,10 +238,10 @@ resource "aws_autoscaling_policy" "container_instance_scale_down" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "container_instance_high_cpu" {
-  alarm_name          = "alarm${title(var.environment)}ClusterCPUReservationHigh"
+  alarm_name          = "alarm${title(var.environment)}ClusterCPUUtilizationHigh"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "${var.high_cpu_evaluation_periods}"
-  metric_name         = "CPUReservation"
+  metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
   period              = "${var.high_cpu_period_seconds}"
   statistic           = "Maximum"
@@ -251,15 +251,15 @@ resource "aws_cloudwatch_metric_alarm" "container_instance_high_cpu" {
     ClusterName = "${aws_ecs_cluster.container_instance.name}"
   }
 
-  alarm_description = "Scale up if CPUReservation is above N% for N duration"
+  alarm_description = "Scale up if CPUUtilization is above N% for N duration"
   alarm_actions     = ["${aws_autoscaling_policy.container_instance_scale_up.arn}"]
 }
 
 resource "aws_cloudwatch_metric_alarm" "container_instance_low_cpu" {
-  alarm_name          = "alarm${title(var.environment)}ClusterCPUReservationLow"
+  alarm_name          = "alarm${title(var.environment)}ClusterCPUUtilizationLow"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = "${var.low_cpu_evaluation_periods}"
-  metric_name         = "CPUReservation"
+  metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
   period              = "${var.low_cpu_period_seconds}"
   statistic           = "Maximum"
@@ -269,7 +269,7 @@ resource "aws_cloudwatch_metric_alarm" "container_instance_low_cpu" {
     ClusterName = "${aws_ecs_cluster.container_instance.name}"
   }
 
-  alarm_description = "Scale down if the CPUReservation is below N% for N duration"
+  alarm_description = "Scale down if the CPUUtilization is below N% for N duration"
   alarm_actions     = ["${aws_autoscaling_policy.container_instance_scale_down.arn}"]
 
   depends_on = ["aws_cloudwatch_metric_alarm.container_instance_high_cpu"]
